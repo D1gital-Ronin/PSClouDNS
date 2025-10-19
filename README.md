@@ -373,23 +373,28 @@ Test-ClouDNSDnssecAvailable -DomainName 'example.com'
 Get-ClouDNSDnssecDsRecords -DomainName 'example.com'
 ```
 
-## Testing
+## Testing & CI
 
-This repository includes a small Pester test file `tests/PSClouDNS.Tests.ps1` with basic smoke tests. These tests talk to the live ClouDNS API and require valid credentials and network access.
+This repository previously contained a small Pester smoke-test suite. If you plan to run tests locally or add continuous integration, follow these recommendations:
 
-Run the tests locally:
+- Local testing (developer):
+	- Install Pester if you don't already have it: `Install-Module Pester -Force -Scope CurrentUser`.
+	- Import the module manifest or module file from the repo root before running tests:
 
-```powershell
-# Ensure Pester is available
-Install-Module Pester -Force -Scope CurrentUser
+		```powershell
+		Import-Module .\PSClouDNS\PSClouDNS.psd1 -Force
+		```
 
-# From the repository root (after cloning), import the module manifest or module file:
-Import-Module .\PSClouDNS\PSClouDNS.psd1 -Force
+	- Write tests under a `tests/` folder using Pester (v5+ recommended). Keep tests that require live credentials in a separate category and guard them with environment checks so CI doesn't accidentally run them.
 
-# Run the module tests (this will call the live API and requires valid credentials):
-Invoke-Pester .\PSClouDNS\tests\PSClouDNS.Tests.ps1
-```
+- CI guidance (public repository):
+	- Use GitHub Actions (or your preferred CI) to run linting and unit tests on pull requests. Do not store real credentials in the repository. Instead, configure repository secrets for `CLOUDNS_AUTH_ID` and `CLOUDNS_PASSWORD` in the GitHub repository settings and reference them in the workflow.
+	- Example workflow steps (high-level): install PowerShell, restore modules, import the module, and run Pester tests. Mark live API tests with a tag (e.g. `Live`) and only run those in workflows that have access to secrets.
 
+- Test data & safety:
+	- Prefer mocked API responses for unit tests (using Pester mocks) and reserve integration tests for gated CI workflows that use rotated test credentials stored in CI secrets.
+
+If you'd like, I can add a lightweight GitHub Actions workflow and a small unit test scaffold that uses Pester mocks and runs on push/pull-request. This will make the repo ready for public publishing without exposing credentials.
 ## Implementation notes
 
 - The module intentionally stores credentials in-session only via `Set-ClouDNSCredentials`.
@@ -402,6 +407,12 @@ If you want to contribute:
 
 - Open an issue describing the feature or bug.
 - Send a pull request against the `main` branch. Keep changes small and include tests.
+
+## Next improvements (planned)
+
+- Add an ApiResponse-style wrapper to standardize return values and error handling.
+- Expand Pester coverage to include create/update/delete flows and validation error cases.
+- Add comment-based help for every exported function (currently only a subset have help headers).
 
 ---
 
