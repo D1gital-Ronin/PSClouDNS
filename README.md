@@ -407,13 +407,3 @@ If you want to contribute:
 
 - Open an issue describing the feature or bug.
 - Send a pull request against the `main` branch. Keep changes small and include tests.
-
-## Next improvements (planned)
-
-- Add an ApiResponse-style wrapper to standardize return values and error handling.
-- Expand Pester coverage to include create/update/delete flows and validation error cases.
-- Add comment-based help for every exported function (currently only a subset have help headers).
-
----
-
-If you'd like, I can now run the Pester tests and fix any issues introduced by the rename and documentation updates. Which would you prefer next: run tests, add ApiResponse wrapper, or expand tests? 
